@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-09-28 15:17:10
- * @LastEditTime: 2020-09-28 19:29:51
+ * @LastEditTime: 2020-09-28 19:31:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \undefinede:\pan-tilt\pan-tilt-\README.md
@@ -18,3 +18,4 @@
 >>>3.以上两个状态在不管动哪一个舵机，都会让另一个舵机停止  
 >>>4.用全局变量记录是否处于移动状态，当x和y都在roi中，如果移动状态为True，就发送停止，如果为False，就不做事  
 >>>5.不管怎样的移动，都会将移动状态置为True  
+>>>6.判重并没有完成，串口通讯协议并没有写   
