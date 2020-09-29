@@ -4,6 +4,7 @@
 
 import sensor, image, time, math
 from pyb import UART
+from pyb import LED
 
 sensor.reset()                      # Reset and initialize the sensor.
 sensor.set_pixformat(sensor.RGB565) # Set pixel format to RGB565 (or GRAYSCALE)
@@ -90,6 +91,8 @@ startWorkingFlag = False
 
 uart = UART(3, 19200)
 
+redLed = LED(1)
+
 while(True):
     if startWorkingFlag:
         clock.tick()                    # Update the FPS clock.
@@ -101,4 +104,5 @@ while(True):
         readArray = uart.read()
         if 1:   #判断下位机返回的数组
             startWorkingFlag = True
+            redLed.on()
 

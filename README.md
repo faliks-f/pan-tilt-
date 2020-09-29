@@ -1,14 +1,14 @@
 <!--
  * @Author: your name
  * @Date: 2020-09-28 15:17:10
- * @LastEditTime: 2020-09-28 19:31:02
+ * @LastEditTime: 2020-09-29 14:43:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \undefinede:\pan-tilt\pan-tilt-\README.md
  -->
 # pan-tilt-
 功能：  
-1.发送开始数组并等待下位机返回一个数组，否则不开始   
+1.发送开始数组并等待下位机返回一个数组，否则不开始，开始后openmv的led会显示红色     
 2.利用阈值查找最大的色块，根据最大色块的中心点的位置判断  
 3.中间区域被确定为图像的中间五分之一处，即横坐标从五分之二到五分之三，纵坐标从五分之二到五分之三
 4.控制左右移动的舵机和上下移动的舵机不会同时动  
