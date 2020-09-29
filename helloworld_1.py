@@ -12,63 +12,61 @@ sensor.set_framesize(sensor.QVGA)   # Set frame size to QVGA (320x240)
 sensor.skip_frames(time = 2000)     # Wait for settings take effect.
 clock = time.clock()                # Create a clock object to track the FPS.
 
-
-#两个舵机同一时间只动一个，动一个停下来另一个
-
 def moveX(x):
     global moveFlag
     moveFlag = True
-    uart.write(stopUpAndDown)
     if x < leftX:
-        uart.write(turnRight)
+        moveArray[2] = TURNRIGHT
     else:
-        uart.write(turnLeft)
+        moveArray[2] = TURNLEFT
 
 def moveY(y):
     global moveFlag
+    global moveArray
     moveFlag = True
-    uart.write(stopLeftAndRight)
     if y < downY:
-        uart.write(turnDown)
+        moveArray[1] = TURNDOWN
     else:
-        uart.write(turnUp)
+        moveArray[1] = TURNUP
 
 def findMaxBlob(blobs):
     maxBlob = blobs[0]
     for i in blobs:
-        if (i.area() > maxBlob.area()):
+        img.draw_rectangle(i.rect(), color = (0, 0, 255),thickness = 3)
+        if (i.area() > maxBlob.area() and abs(i[2] - i[3]) < 10 and i.area() > 1500 and i.area() < 5000):
             maxBlob = i
     return maxBlob
 
 def imgAnalysis(img):
     global moveFlag
+    global moveArray
+    moveArray = bytearray([0x75, 0x00, 0x00, 0x00])
     blobs = img.find_blobs(redThreshold)
     if (len(blobs) > 0):
         maxBlob = findMaxBlob(blobs)
-        centerPointX = maxBlob.cx()
-        centerPointY = maxBlob.cy()
-        img.draw_keypoints([(centerPointX, centerPointY, 0)])
-        #两个都不在范围内，让X和Y中距离远的靠近
-        a = centerPointX < leftX or centerPointX > rightX
-        b = centerPointY < downY or centerPointY > upY
-        if (a and b):
-            XDistance = min(abs(centerPointX - leftX), abs(centerPointX - rightX))
-            YDistance = min(abs(centerPointY - upY), abs(centerPointY - downY))
-            if (XDistance > YDistance):
+        if abs(maxBlob[2] - maxBlob[3]) < 10 and maxBlob.area() > 1500 and maxBlob.area() < 5000:
+            print(maxBlob.area())
+            img.draw_rectangle(maxBlob.rect(), color = (0, 0, 255),thickness = 3)
+            centerPointX = maxBlob.cx()
+            centerPointY = maxBlob.cy()
+            img.draw_keypoints([(centerPointX, centerPointY, 0)])
+            #两个都不在范围内，让X和Y中距离远的靠近
+            a = centerPointX < leftX or centerPointX > rightX
+            b = centerPointY < downY or centerPointY > upY
+            if (a and b):
                 moveX(centerPointX)
-            else:
                 moveY(centerPointY)
-        elif a:
-            moveX(centerPointX)
-        elif b:
-            moveY(centerPointY)
-        else:
-            if moveFlag:
-                moveFlag = False
-                uart.write(stopLeftAndRight)
-                uart.write(stopUpAndDown)
+            elif a:
+                moveX(centerPointX)
+            elif b:
+                moveY(centerPointY)
+            else:
+                if moveFlag:
+                    moveFlag = False
+            uart.write(moveArray)
 
-redThreshold = [(0, 100, 18, 127, -16, 127)]
+
+redThreshold = [(14, 32, 18, 62, -5, 48)]
 
 img = sensor.snapshot()
 
@@ -77,13 +75,13 @@ rightX = img.width() * 3 / 5
 downY = img.height() * 2 / 5
 upY = img.height() * 3 / 5
 
+TURNUP = 0x01
+TURNDOWN = 0x02
+TURNLEFT = 0x01
+TURNRIGHT = 0x02
+
+moveArray = bytearray([0x75, 0x00, 0x00, 0x00])
 start = bytearray()
-turnLeft = bytearray()
-turnRight = bytearray()
-turnUp = bytearray()
-turnDown = bytearray()
-stopLeftAndRight = bytearray()
-stopUpAndDown = bytearray()
 
 moveFlag = False
 
