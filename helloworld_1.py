@@ -32,8 +32,8 @@ def moveY(y):
 def findMaxBlob(blobs):
     maxBlob = blobs[0]
     for i in blobs:
-        img.draw_rectangle(i.rect(), color = (0, 0, 255),thickness = 3)
-        if (i.area() > maxBlob.area() and abs(i[2] - i[3]) < 10 and i.area() > 1500 and i.area() < 5000):
+        #img.draw_rectangle(i.rect(), color = (0, 0, 255),thickness = 3)
+        if (i.area() > maxBlob.area() and i.area() > 1500 and i.area() < 5000):
             maxBlob = i
     return maxBlob
 
@@ -44,7 +44,7 @@ def imgAnalysis(img):
     blobs = img.find_blobs(redThreshold)
     if (len(blobs) > 0):
         maxBlob = findMaxBlob(blobs)
-        if abs(maxBlob[2] - maxBlob[3]) < 10 and maxBlob.area() > 1500 and maxBlob.area() < 5000:
+        if maxBlob.area() > 1500 and maxBlob.area() < 5000:
             print(maxBlob.area())
             img.draw_rectangle(maxBlob.rect(), color = (0, 0, 255),thickness = 3)
             centerPointX = maxBlob.cx()
@@ -64,9 +64,14 @@ def imgAnalysis(img):
                 if moveFlag:
                     moveFlag = False
             uart.write(moveArray)
+            delay()
 
+def delay():
+    sum = 0
+    for i in range(1, 100000):
+        sum += 1
 
-redThreshold = [(14, 32, 18, 62, -5, 48)]
+redThreshold = [(14, 38, 20, 64, -4, 46)]
 
 img = sensor.snapshot()
 
@@ -87,16 +92,19 @@ moveFlag = False
 
 startWorkingFlag = False
 
-uart = UART(3, 19200)
+uart = UART(3, 115200)
+uart.init(115200, bits = 8, parity = None, stop = 1)
 
 redLed = LED(1)
 
 while(True):
     if startWorkingFlag:
+        read = uart.read()
+        print(read)
         clock.tick()                    # Update the FPS clock.
         img = sensor.snapshot()         # Take a picture and return the image.
         imgAnalysis(img)
-        img.binary(redThreshold)
+        #img.binary(redThreshold)
     else:
         uart.write(start)
         readArray = uart.read()
